@@ -1,0 +1,25 @@
+{
+  "name": "ISARACK Instaladores",
+  "short_name": "ISARACK",
+  "description": "App para instaladores de ISARACK - ve tus pedidos, sube fotos y entrega firmada",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#D85A30",
+  "theme_color": "#D85A30",
+  "lang": "es-MX",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
