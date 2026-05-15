@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#D85A30">
+<title>ISARACK Instaladores</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f3;color:#222;font-size:14px;overscroll-behavior:none;touch-action:pan-y}
+html{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+body{padding-bottom:80px;min-height:100vh;overscroll-behavior-y:none}
+.header{background:#D85A30;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.header-logo{width:38px;height:38px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#D85A30;font-weight:800;font-size:14px;flex-shrink:0}
+.header-info{flex:1;min-width:0}
+.header-title{font-size:14px;font-weight:700;line-height:1.2}
+.header-sub{font-size:12px;opacity:.85;line-height:1.2;margin-top:2px}
+.header-badge{font-size:11px;background:rgba(255,255,255,.22);padding:4px 10px;border-radius:12px;font-weight:600;white-space:nowrap}
+.back-btn{background:rgba(255,255,255,.18);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tabs{background:#fff;display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid #eee;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:7px 14px;font-size:13px;border-radius:18px;border:1px solid #e5e5e0;background:#fff;color:#666;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.tab.active{background:#D85A30;color:#fff;border-color:#D85A30}
+.content{padding:14px}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer;transition:transform .1s}
+.card:active{transform:scale(.985)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.card-num{font-size:13px;font-weight:800;color:#D85A30;letter-spacing:.02em}
+.badge{font-size:10px;padding:3px 9px;border-radius:12px;font-weight:700;letter-spacing:.02em}
+.badge.hoy{background:#FAEEDA;color:#854F0B}
+.badge.pendiente{background:#fcebeb;color:#791F1F}
+.badge.en-proceso{background:#E6F1FB;color:#0C447C}
+.badge.completado{background:#EAF3DE;color:#27500A}
+.card-cliente{font-size:15px;font-weight:700;margin-bottom:4px;color:#222}
+.card-ubi{font-size:12px;color:#666;margin-bottom:8px;display:flex;align-items:flex-start;gap:4px;line-height:1.35}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:10px;padding:3px 7px;border-radius:6px;font-weight:600}
+.tag.blue{background:#E6F1FB;color:#0C447C}
+.tag.green{background:#EAF3DE;color:#27500A}
+.tag.amber{background:#FAEEDA;color:#854F0B}
+.empty{text-align:center;padding:50px 20px;color:#888}
+.empty-icon{font-size:42px;margin-bottom:12px;opacity:.4}
+.empty-text{font-size:14px;line-height:1.5}
+.login-screen{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:30px 24px;background:#fff}
+.login-logo{width:80px;height:80px;background:#D85A30;border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:24px;margin:0 auto 20px}
+.login-title{text-align:center;font-size:22px;font-weight:800;margin-bottom:6px}
+.login-sub{text-align:center;font-size:13px;color:#888;margin-bottom:30px}
+.login-form{max-width:340px;margin:0 auto;width:100%}
+.login-label{font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;display:block}
+.login-input{width:100%;padding:14px;border:2px solid #e5e5e0;border-radius:10px;font-size:18px;font-family:inherit;margin-bottom:14px;text-align:center;letter-spacing:.05em;-webkit-appearance:none}
+.login-input:focus{outline:none;border-color:#D85A30}
+.login-btn{width:100%;padding:14px;background:#D85A30;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.login-btn:active{background:#b94725}
+.login-err{background:#fcebeb;color:#791F1F;padding:10px;border-radius:8px;font-size:12px;text-align:center;margin-bottom:12px}
+.detail-screen{padding:14px}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.action-btn{padding:12px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;border:none;font-family:inherit}
+.action-btn.maps{background:#185FA5;color:#fff}
+.action-btn.wa{background:#25D366;color:#fff}
+.info-box{background:#f9f9f7;border-radius:10px;padding:12px;margin-bottom:12px}
+.info-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:6px}
+.info-val{font-size:14px;font-weight:600;margin-bottom:2px}
+.info-sub{font-size:12px;color:#666}
+.planos-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
+.plano-thumb{aspect-ratio:1;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#888;cursor:pointer;overflow:hidden;position:relative}
+.plano-thumb img{width:100%;height:100%;object-fit:cover}
+.plano-thumb.pdf{background:#f3eef8;color:#7c5cbf}
+.actions-section{border-top:1px solid #eee;padding-top:14px;margin-top:6px}
+.section-title{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:10px}
+.btn-full{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:700;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;border:1.5px solid}
+.btn-foto{background:#fff;border-color:#185FA5;color:#185FA5}
+.btn-pdf{background:#fff;border-color:#3B6D11;color:#3B6D11}
+.btn-entregado{background:#3B6D11;border-color:#3B6D11;color:#fff;font-size:15px;padding:15px}
+.btn-foto:active,.btn-pdf:active{background:#f9f9f7}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#222;color:#fff;padding:11px 18px;border-radius:24px;font-size:13px;font-weight:600;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:14px}
+.modal-img{max-width:100%;max-height:90vh;border-radius:8px}
+.firma-fullscreen{position:fixed;inset:0;background:#fff;z-index:999;display:flex;flex-direction:column}
+.firma-fs-bar{background:#D85A30;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.firma-fs-bar h3{margin:0;font-size:14px;font-weight:700;flex:1}
+.firma-fs-bar button{background:rgba(255,255,255,.18);border:none;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.firma-fs-bar button.primary{background:#fff;color:#D85A30}
+.firma-fs-canvas-wrap{flex:1;padding:10px;display:flex;flex-direction:column}
+.firma-fs-canvas-wrap canvas{flex:1;border:2px dashed #b5cce8;border-radius:8px;background:#fff;touch-action:none;width:100%}
+.firma-fs-hint{font-size:12px;color:#888;text-align:center;padding:6px}
+.modal-close{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.2);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fotos-list{margin-top:8px}
+.foto-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f0f7ff;border:1px solid #b5cce8;border-radius:8px;margin-bottom:5px;font-size:12px}
+.foto-chip-name{flex:1;color:#185FA5;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#D85A30;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.offline-banner{background:#FAEEDA;color:#854F0B;padding:8px 14px;font-size:12px;text-align:center;font-weight:600}
+.refresh-btn{position:fixed;bottom:24px;right:24px;width:54px;height:54px;background:#D85A30;color:#fff;border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(216,90,48,.4);z-index:50}
+.refresh-btn:active{transform:scale(.95)}
+.refresh-btn.spinning{animation:spin 1s linear infinite}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://zjvuugslnfrivlyvzlei.supabase.co';
+const SUPABASE_KEY='sb_publishable_TZ1bWpKTKVyr6gSml35u2g_yc6E0k8g';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+// Códigos de instaladores (los puedes cambiar)
+const INSTALADORES={
+  '6123090644':{nombre:'Brayan Alexis',codigo:'1234',iniciales:'BA'},
+  '6563549469':{nombre:'Jonas Sañudo',codigo:'5678',iniciales:'JS'},
+  '6642323708':{nombre:'Gilberto Rodriguez',codigo:'2323',iniciales:'GR'},
+  '6642271617':{nombre:'Oscar Ochoa',codigo:'2271',iniciales:'OO'},
+  '6646705293':{nombre:'Israel Mendez',codigo:'7052',iniciales:'IM'},
+  '6644211088':{nombre:'Isaac Romero',codigo:'2110',iniciales:'IR'},
+  '6635223207':{nombre:'Samuel A. Gomez',codigo:'5232',iniciales:'SG'}
+};
+
+let state={
+  user:null,
+  pedidos:[],
+  filtro:'hoy',
+  vista:'lista',
+  pedidoSel:null
+};
+
+function $(id){return document.getElementById(id);}
+function getApp(){return $('app');}
+
+function toast(msg,color){
+  const t=document.createElement('div');
+  t.className='toast';t.textContent=msg;
+  if(color)t.style.background=color;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+
+function guardarSesion(cel){localStorage.setItem('isa_inst_user',cel);}
+function cargarSesion(){return localStorage.getItem('isa_inst_user');}
+function cerrarSesion(){localStorage.removeItem('isa_inst_user');state.user=null;state.pedidos=[];state.pedidoSel=null;state.vista='login';render();}
+
+function fmtFecha(f){if(!f)return'—';try{const d=new Date(f);return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short'});}catch(e){return f;}}
+function esHoy(f){if(!f)return false;try{const d=new Date(f);const hoy=new Date();return d.toDateString()===hoy.toDateString();}catch(e){return false;}}
+
+async function cargarPedidos(){
+  if(!state.user)return;
+  try{
+    const {data,error}=await sb.from('orders').select('*').eq('instalador_cel',state.user).order('updated_at',{ascending:false});
+    if(error){
+      console.log('Try payload mode...');
+      const r2=await sb.from('orders').select('*').order('updated_at',{ascending:false});
+      if(r2.error)throw r2.error;
+      const todos=(r2.data||[]).map(r=>{try{return r.payload?JSON.parse(r.payload):r;}catch(e){return r;}});
+      state.pedidos=todos.filter(o=>o&&o.instaladorCel===state.user&&o.estatus!=='Completado'&&o.estatus!=='Cancelado');
+    }else{
+      state.pedidos=(data||[]).map(r=>{try{return r.payload?JSON.parse(r.payload):r;}catch(e){return r;}}).filter(o=>o&&o.estatus!=='Completado'&&o.estatus!=='Cancelado');
+    }
+    render();
+  }catch(e){
+    console.error('Error cargando:',e);
+    toast('⚠ Error al cargar','#c62828');
+  }
+}
+
+function renderLogin(){
+  const err=state.loginErr;
+  return `
+    <div class="login-screen">
+      <div class="login-logo">IS</div>
+      <div class="login-title">ISARACK</div>
+      <div class="login-sub">App de Instaladores</div>
+      <div class="login-form">
+        ${err?`<div class="login-err">${err}</div>`:''}
+        <label class="login-label">Tu número de celular</label>
+        <input class="login-input" type="tel" id="login-tel" placeholder="6641234567" maxlength="10" inputmode="numeric" value="${state.tel||''}">
+        <label class="login-label">Código (4 dígitos)</label>
+        <input class="login-input" type="tel" id="login-cod" placeholder="••••" maxlength="4" inputmode="numeric">
+        <button class="login-btn" onclick="hacerLogin()">Entrar</button>
+      </div>
+    </div>`;
+}
+
+function hacerLogin(){
+  const tel=($('login-tel').value||'').trim().replace(/\D/g,'');
+  const cod=($('login-cod').value||'').trim();
+  if(tel.length!==10){state.loginErr='El celular debe tener 10 dígitos';render();return;}
+  if(cod.length!==4){state.loginErr='El código debe tener 4 dígitos';render();return;}
+  const ins=INSTALADORES[tel];
+  if(!ins){state.loginErr='Celular no registrado. Habla con la oficina.';state.tel=tel;render();return;}
+  if(ins.codigo!==cod){state.loginErr='Código incorrecto';state.tel=tel;render();return;}
+  state.loginErr=null;
+  state.tel=null;
+  state.user=tel;
+  guardarSesion(tel);
+  state.vista='lista';
+  render();
+  cargarPedidos();
+}
+
+function renderLista(){
+  const ins=INSTALADORES[state.user];
+  let pedidosFiltrados=state.pedidos;
+  if(state.filtro==='hoy')pedidosFiltrados=state.pedidos.filter(o=>esHoy(o.entrega));
+  else if(state.filtro==='pendientes')pedidosFiltrados=state.pedidos.filter(o=>o.estatus==='Pendiente');
+  else if(state.filtro==='proceso')pedidosFiltrados=state.pedidos.filter(o=>o.estatus==='En proceso');
+
+  const numHoy=state.pedidos.filter(o=>esHoy(o.entrega)).length;
+  const numPend=state.pedidos.filter(o=>o.estatus==='Pendiente').length;
+  const numProc=state.pedidos.filter(o=>o.estatus==='En proceso').length;
+
+  let cardsHtml='';
+  if(!pedidosFiltrados.length){
+    cardsHtml=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Sin pedidos en este filtro.<br>Desliza ↓ para actualizar.</div></div>`;
+  }else{
+    cardsHtml=pedidosFiltrados.map(o=>{
+      const numPlanos=(o.planos||[]).length;
+      const sistemas=(o.sistemas||[]).slice(0,2);
+      const badgeClass=o.estatus==='Pendiente'?'pendiente':o.estatus==='En proceso'?'en-proceso':o.estatus==='Completado'?'completado':'hoy';
+      const isHoy=esHoy(o.entrega);
+      return `
+        <div class="card" onclick="abrirPedido('${o.num}')">
+          <div class="card-header">
+            <div class="card-num">${o.num||'—'}</div>
+            <div class="badge ${isHoy?'hoy':badgeClass}">${isHoy?'Hoy':(o.estatus||'')}</div>
+          </div>
+          <div class="card-cliente">${o.cliente||'—'}</div>
+          ${o.ubicacion?`<div class="card-ubi">📍 ${o.ubicacion.substring(0,80)}${o.ubicacion.length>80?'...':''}</div>`:''}
+          <div class="card-tags">
+            ${numPlanos>0?`<div class="tag blue">📐 ${numPlanos} plano${numPlanos>1?'s':''}</div>`:''}
+            ${sistemas.map(s=>`<div class="tag green">${s}</div>`).join('')}
+            ${o.entrega?`<div class="tag amber">📅 ${fmtFecha(o.entrega)}</div>`:''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  return `
+    <div class="header">
+      <div class="header-logo">${ins.iniciales}</div>
+      <div class="header-info">
+        <div class="header-title">ISARACK Instaladores</div>
+        <div class="header-sub">${ins.nombre}</div>
+      </div>
+      <div class="header-badge" onclick="if(confirm('¿Cerrar sesión?'))cerrarSesion()">${state.pedidos.length}</div>
+    </div>
+    <div class="tabs">
+      <div class="tab ${state.filtro==='hoy'?'active':''}" onclick="setFiltro('hoy')">Hoy (${numHoy})</div>
+      <div class="tab ${state.filtro==='pendientes'?'active':''}" onclick="setFiltro('pendientes')">Pendientes (${numPend})</div>
+      <div class="tab ${state.filtro==='proceso'?'active':''}" onclick="setFiltro('proceso')">En proceso (${numProc})</div>
+      <div class="tab ${state.filtro==='todos'?'active':''}" onclick="setFiltro('todos')">Todos (${state.pedidos.length})</div>
+    </div>
+    <div class="content">${cardsHtml}</div>
+    <button class="refresh-btn" id="refresh-btn" onclick="recargar()">↻</button>`;
+}
+
+function setFiltro(f){state.filtro=f;render();}
+
+async function recargar(){
+  const btn=$('refresh-btn');
+  if(btn)btn.classList.add('spinning');
+  await cargarPedidos();
+  setTimeout(()=>{if(btn)btn.classList.remove('spinning');},400);
+}
+
+function abrirPedido(num){
+  const o=state.pedidos.find(x=>x.num===num);
+  if(!o){toast('Pedido no encontrado','#c62828');return;}
+  state.pedidoSel=o;
+  state.vista='detalle';
+  render();
+}
+
+function volverLista(){state.vista='lista';state.pedidoSel=null;render();}
+
+function abrirFirma(){
+  const o=state.pedidoSel;if(!o){toast('Sin pedido','#c62828');return;}
+  state.vista='firma';
+  state.firma={nombre:o.contactoNombre||'',obs:'',dataURL:null,signaturePadFS:null};
+  render();
+}
+
+function renderFirma(){
+  const o=state.pedidoSel;
+  return `
+    <div class="header">
+      <button class="back-btn" onclick="state.vista='detalle';render()">←</button>
+      <div class="header-info">
+        <div class="header-title">Firma de entrega</div>
+        <div class="header-sub">${o.num} — ${o.cliente||''}</div>
+      </div>
+    </div>
+    <div style="padding:14px">
+      <div class="info-box" style="background:#fffbeb;border:1px solid #f5e1a8">
+        <div style="font-size:11px;color:#854F0B;font-weight:700;margin-bottom:6px">📋 PROCEDIMIENTO</div>
+        <div style="font-size:12px;color:#666;line-height:1.5">
+          1. Confirma datos del cliente<br>
+          2. Pide al cliente firmar abajo<br>
+          3. Toca <b>Guardar entrega</b>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;color:#666;font-weight:700;text-transform:uppercase;display:block;margin-bottom:5px">Nombre de quien recibe</label>
+        <input id="firma-nombre" type="text" placeholder="Nombre completo" value="${(state.firma&&state.firma.nombre)||''}" style="width:100%;padding:12px;border:2px solid #e5e5e0;border-radius:8px;font-size:14px;font-family:inherit">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;color:#666;font-weight:700;text-transform:uppercase;display:block;margin-bottom:5px">Observaciones (opcional)</label>
+        <textarea id="firma-obs" placeholder="Ej: Equipo entregado completo y funcionando..." style="width:100%;padding:12px;border:2px solid #e5e5e0;border-radius:8px;font-size:13px;font-family:inherit;min-height:60px;resize:vertical">${(state.firma&&state.firma.obs)||''}</textarea>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;color:#666;font-weight:700;text-transform:uppercase;display:block;margin-bottom:5px">✍ Firma del cliente</label>
+        <div id="firma-preview" style="border:2px dashed #b5cce8;border-radius:8px;background:#fff;min-height:120px;display:flex;align-items:center;justify-content:center;padding:10px">
+          <div style="text-align:center;color:#999;font-size:12px">Sin firma todavía</div>
+        </div>
+        <button onclick="abrirFirmaFullscreen()" style="margin-top:8px;width:100%;padding:14px;background:#185FA5;border:none;color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+          📱 Firmar en pantalla completa
+        </button>
+      </div>
+
+      <button class="btn-full btn-entregado" onclick="guardarFirma()" style="margin-top:10px">✓ Guardar entrega y generar PDF</button>
+    </div>`;
+}
+
+function abrirFirmaFullscreen(){
+  // Crear modal fullscreen
+  const m=document.createElement('div');
+  m.className='firma-fullscreen';
+  m.id='firma-modal';
+  m.innerHTML=`
+    <div class="firma-fs-bar">
+      <button onclick="cerrarFirmaFullscreen(false)">← Cancelar</button>
+      <h3>Firma del cliente</h3>
+      <button onclick="limpiarFirmaFS()">🧹 Borrar</button>
+      <button class="primary" onclick="cerrarFirmaFullscreen(true)">✓ Listo</button>
+    </div>
+    <div class="firma-fs-canvas-wrap">
+      <canvas id="firma-fs-canvas"></canvas>
+      <div class="firma-fs-hint">Gira el celular para más espacio · Firma con el dedo</div>
+    </div>`;
+  document.body.appendChild(m);
+  
+  // Bloquear scroll del body
+  document.body.style.overflow='hidden';
+  
+  // Inicializar SignaturePad en el canvas grande
+  setTimeout(()=>{
+    const canvas=document.getElementById('firma-fs-canvas');
+    const ratio=Math.max(window.devicePixelRatio||1,1);
+    canvas.width=canvas.offsetWidth*ratio;
+    canvas.height=canvas.offsetHeight*ratio;
+    canvas.getContext('2d').scale(ratio,ratio);
+    state.firma.signaturePadFS=new SignaturePad(canvas,{
+      backgroundColor:'rgba(255,255,255,0)',
+      penColor:'#0a0a0a',
+      minWidth:1.5,
+      maxWidth:3
+    });
+    // Si ya había firma previa, cargarla
+    if(state.firma.dataURL){
+      const img=new Image();
+      img.onload=()=>canvas.getContext('2d').drawImage(img,0,0,canvas.offsetWidth,canvas.offsetHeight);
+      img.src=state.firma.dataURL;
+    }
+  },50);
+}
+
+function limpiarFirmaFS(){
+  if(state.firma&&state.firma.signaturePadFS)state.firma.signaturePadFS.clear();
+}
+
+function cerrarFirmaFullscreen(guardar){
+  const pad=state.firma.signaturePadFS;
+  if(guardar&&pad&&!pad.isEmpty()){
+    state.firma.dataURL=pad.toDataURL('image/png');
+    // Actualizar preview
+    const prev=document.getElementById('firma-preview');
+    if(prev){
+      prev.innerHTML=`<img src="${state.firma.dataURL}" style="max-width:100%;max-height:140px">`;
+    }
+    toast('✓ Firma capturada','#3B6D11');
+  }else if(guardar){
+    toast('⚠ Falta firmar','#c62828');
+    return;
+  }
+  document.getElementById('firma-modal').remove();
+  document.body.style.overflow='';
+  state.firma.signaturePadFS=null;
+}
+
+function initFirma(){
+  // Ya no se inicializa canvas en la vista, ahora es solo el preview
+  // El SignaturePad se crea en abrirFirmaFullscreen
+}
+
+function limpiarFirma(){
+  state.firma.dataURL=null;
+  const prev=document.getElementById('firma-preview');
+  if(prev)prev.innerHTML='<div style="text-align:center;color:#999;font-size:12px">Sin firma todavía</div>';
+}
+
+async function guardarFirma(){
+  const o=state.pedidoSel;if(!o){toast('Sin pedido','#c62828');return;}
+  const nombre=(document.getElementById('firma-nombre').value||'').trim();
+  const obs=(document.getElementById('firma-obs').value||'').trim();
+  if(!nombre){toast('⚠ Falta nombre','#c62828');return;}
+  if(!state.firma.dataURL){toast('⚠ Falta firma. Toca "Firmar en pantalla completa"','#c62828');return;}
+  
+  toast('⏳ Generando PDF...','#185FA5');
+  try{
+    const firmaDataURL=state.firma.dataURL;
+    const pdfBlob=await generarPdfFirma(o,nombre,obs,firmaDataURL);
+    
+    // Subir PDF a Supabase Storage
+    const ts=Date.now();
+    const path=o.num+'/entregas/'+ts+'_firma_'+limpiarNombre(nombre)+'.pdf';
+    const {error}=await sb.storage.from('planos').upload(path,pdfBlob,{contentType:'application/pdf'});
+    if(error){console.error(error);toast('⚠ Error: '+error.message,'#c62828');return;}
+    const {data:urlData}=sb.storage.from('planos').getPublicUrl(path);
+    
+    // Guardar en pdfsRecepcion (zona verde de ISA-OS)
+    const pdfRec={
+      name:'Firma_'+nombre+'.pdf',
+      data:urlData.publicUrl,
+      tipo:'application/pdf',
+      size:pdfBlob.size,
+      fecha:new Date().toISOString(),
+      subidoPor:INSTALADORES[state.user].nombre,
+      storagePath:path,
+      firmadoPor:nombre,
+      observaciones:obs
+    };
+    if(!o.pdfsRecepcion)o.pdfsRecepcion=[];
+    o.pdfsRecepcion.push(pdfRec);
+    o.estatus='Completado';
+    o.entregado='Si';
+    o.armado='Listo';
+    o.instalacion='Listo';
+    await guardarPedido(o);
+    
+    toast('✓ Entrega registrada','#3B6D11');
+    state.pedidos=state.pedidos.filter(x=>x.num!==o.num);
+    setTimeout(()=>volverLista(),800);
+  }catch(e){
+    console.error(e);
+    toast('⚠ Error: '+e.message,'#c62828');
+  }
+}
+
+async function generarPdfFirma(o,nombre,obs,firmaDataURL){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'letter'});
+  const W=216,M=15;
+  let y=20;
+  
+  // Encabezado naranja
+  doc.setFillColor(216,90,48);
+  doc.rect(0,0,W,28,'F');
+  doc.setTextColor(255);
+  doc.setFontSize(18);doc.setFont('helvetica','bold');
+  doc.text('ISARACK',M,15);
+  doc.setFontSize(10);doc.setFont('helvetica','normal');
+  doc.text('Comprobante de entrega',M,22);
+  y=40;
+  
+  // Datos del pedido
+  doc.setTextColor(0);
+  doc.setFontSize(11);doc.setFont('helvetica','bold');
+  doc.text('Datos del pedido',M,y);y+=2;
+  doc.setLineWidth(0.3);doc.line(M,y,W-M,y);y+=7;
+  
+  doc.setFont('helvetica','normal');doc.setFontSize(10);
+  const datos=[
+    ['Pedido:',o.num||'—'],
+    ['Cliente:',o.cliente||'—'],
+    ['Ubicación:',o.ubicacion||'—'],
+    ['Fecha entrega:',new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})],
+    ['Instalador:',INSTALADORES[state.user].nombre]
+  ];
+  datos.forEach(d=>{
+    doc.setFont('helvetica','bold');doc.text(d[0],M,y);
+    doc.setFont('helvetica','normal');
+    const lines=doc.splitTextToSize(d[1],W-M-40);
+    doc.text(lines,M+35,y);
+    y+=Math.max(6,lines.length*5);
+  });
+  
+  y+=4;
+  doc.setFont('helvetica','bold');doc.setFontSize(11);
+  doc.text('Recepción',M,y);y+=2;
+  doc.line(M,y,W-M,y);y+=7;
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica','bold');doc.text('Recibe:',M,y);
+  doc.setFont('helvetica','normal');doc.text(nombre,M+35,y);y+=8;
+  
+  if(obs){
+    doc.setFont('helvetica','bold');doc.text('Observaciones:',M,y);y+=5;
+    doc.setFont('helvetica','normal');
+    const obsLines=doc.splitTextToSize(obs,W-2*M);
+    doc.text(obsLines,M,y);y+=obsLines.length*5+4;
+  }
+  
+  // Firma
+  y+=6;
+  doc.setFont('helvetica','bold');doc.setFontSize(11);
+  doc.text('Firma del cliente',M,y);y+=2;
+  doc.line(M,y,W-M,y);y+=4;
+  
+  try{
+    doc.addImage(firmaDataURL,'PNG',M,y,80,40);
+  }catch(e){console.error('Firma error:',e);}
+  y+=42;
+  doc.line(M,y,M+80,y);y+=4;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text(nombre,M,y);
+  
+  // Pie de página
+  doc.setFontSize(8);doc.setTextColor(150);
+  doc.text('Documento generado por ISARACK Instaladores · '+new Date().toLocaleString('es-MX'),M,260);
+  
+  return doc.output('blob');
+}
+
+function renderDetalle(){
+  const o=state.pedidoSel;
+  if(!o)return renderLista();
+  const ins=INSTALADORES[state.user];
+  const mapsUrl=o.ubicacion?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(o.ubicacion):'';
+  const waUrl=o.whatsapp?'https://wa.me/52'+o.whatsapp.replace(/\D/g,''):'';
+  const planos=o.planos||[];
+  const fotos=o.fotosAvance||[];
+
+  const planosHtml=planos.length?`
+    <div style="margin-bottom:12px">
+      <div class="info-label">📐 Planos / SketchUp (${planos.length})</div>
+      <div class="planos-grid">
+        ${planos.map((p,i)=>{
+          const esImg=p.tipo&&p.tipo.startsWith('image/');
+          return esImg?`<div class="plano-thumb" onclick="abrirImagen('${p.url}')"><img src="${p.url}" alt="${p.name}"></div>`:`<div class="plano-thumb pdf" onclick="window.open('${p.url}','_blank')">📄</div>`;
+        }).join('')}
+      </div>
+    </div>`:'';
+
+  const fotosHtml=fotos.length?`
+    <div class="fotos-list">
+      <div class="info-label">📸 Fotos del avance (${fotos.length})</div>
+      ${fotos.map((f,i)=>`
+        <div class="foto-chip">
+          <span>📷</span>
+          <a href="${f.url}" target="_blank" class="foto-chip-name">${f.name||'Foto '+(i+1)}</a>
+          <span style="color:#888;font-size:10px">${f.fecha?new Date(f.fecha).toLocaleDateString('es-MX'):''}</span>
+        </div>`).join('')}
+    </div>`:'';
+
+  return `
+    <div class="header">
+      <button class="back-btn" onclick="volverLista()">←</button>
+      <div class="header-info">
+        <div class="header-title">${o.num} — ${o.cliente||''}</div>
+        <div class="header-sub">${o.estatus||''} ${o.entrega?'• '+fmtFecha(o.entrega):''}</div>
+      </div>
+    </div>
+    <div class="detail-screen">
+      ${mapsUrl||waUrl?`<div class="action-row">
+        ${mapsUrl?`<a href="${mapsUrl}" target="_blank" class="action-btn maps">🗺 Ir en Maps</a>`:''}
+        ${waUrl?`<a href="${waUrl}" target="_blank" class="action-btn wa">💬 WhatsApp</a>`:''}
+      </div>`:''}
+      ${o.ubicacion?`<div class="info-box"><div class="info-label">📍 Ubicación</div><div class="info-val">${o.ubicacion}</div></div>`:''}
+      ${o.contactoNombre||o.whatsapp?`<div class="info-box"><div class="info-label">👤 Contacto cliente</div><div class="info-val">${o.contactoNombre||'—'}</div>${o.whatsapp?`<div class="info-sub">${o.whatsapp}</div>`:''}</div>`:''}
+      ${o.desc?`<div class="info-box"><div class="info-label">📋 Descripción</div><div class="info-val" style="font-size:13px;font-weight:400;line-height:1.5">${o.desc}</div></div>`:''}
+      ${o.notas?`<div class="info-box" style="background:#fffbeb"><div class="info-label">📝 Notas</div><div class="info-val" style="font-size:13px;font-weight:400;line-height:1.5">${o.notas}</div></div>`:''}
+      ${planosHtml}
+      ${fotosHtml}
+      <div class="actions-section">
+        <div class="section-title">Acciones</div>
+        <button class="btn-full btn-foto" onclick="subirFotoAvance()"><span id="foto-spin"></span>📸 Subir foto del avance</button>
+        <button class="btn-full btn-pdf" onclick="abrirFirma()"><span id="pdf-spin"></span>✍ Firma de cliente</button>
+        <button class="btn-full btn-entregado" onclick="marcarEntregado()">✓ Marcar como entregado</button>
+      </div>
+    </div>`;
+}
+
+function abrirImagen(url){
+  const m=document.createElement('div');
+  m.className='modal-overlay';
+  m.innerHTML=`<button class="modal-close" onclick="this.parentNode.remove()">✕</button><img class="modal-img" src="${url}">`;
+  m.onclick=e=>{if(e.target===m)m.remove();};
+  document.body.appendChild(m);
+}
+
+async function comprimirImagen(file){
+  if(!file.type.startsWith('image/'))return file;
+  return new Promise(resolve=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=1920;let w=img.width,h=img.height;
+        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        c.toBlob(b=>{
+          if(!b||b.size>=file.size){resolve(file);return;}
+          const base=file.name.replace(/\.[^.]+$/,'');
+          resolve(new File([b],base+'.jpg',{type:'image/jpeg'}));
+        },'image/jpeg',0.85);
+      };
+      img.onerror=()=>resolve(file);
+      img.src=e.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+function limpiarNombre(n){
+  if(!n)return'archivo';
+  const m=n.match(/^(.+?)(\.[^.]+)?$/);
+  let b=m?m[1]:n;let e=m&&m[2]?m[2]:'';
+  b=b.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');
+  e=e.toLowerCase().replace(/[^a-z0-9.]/g,'');
+  if(!b)b='archivo';if(b.length>50)b=b.substring(0,50);
+  return b+e;
+}
+
+function subirFotoAvance(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='image/*';inp.capture='environment';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];if(!file)return;
+    const o=state.pedidoSel;if(!o){toast('Sin pedido','#c62828');return;}
+    toast('⏳ Subiendo foto...','#185FA5');
+    const comp=await comprimirImagen(file);
+    const ts=Date.now();
+    const cleanName=limpiarNombre(comp.name);
+    const path=o.num+'/fotos/'+ts+'_'+cleanName;
+    const {error}=await sb.storage.from('planos').upload(path,comp,{contentType:comp.type});
+    if(error){console.error(error);toast('⚠ Error: '+error.message,'#c62828');return;}
+    const {data:urlData}=sb.storage.from('planos').getPublicUrl(path);
+    const fotoRec={path,url:urlData.publicUrl,name:file.name,tipo:comp.type,size:comp.size,fecha:new Date().toISOString(),subidoPor:INSTALADORES[state.user].nombre};
+    if(!o.fotosAvance)o.fotosAvance=[];
+    o.fotosAvance.push(fotoRec);
+    o.estatus=o.estatus==='Pendiente'?'En proceso':o.estatus;
+    await guardarPedido(o);
+    render();
+    toast('✓ Foto subida','#3B6D11');
+  };
+  inp.click();
+}
+
+function subirPdfEntrega(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='application/pdf,image/*';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];if(!file)return;
+    const o=state.pedidoSel;if(!o){toast('Sin pedido','#c62828');return;}
+    toast('⏳ Subiendo PDF firmado...','#185FA5');
+    const archivoFinal=file.type.startsWith('image/')?await comprimirImagen(file):file;
+    const ts=Date.now();
+    const cleanName=limpiarNombre(archivoFinal.name);
+    const path=o.num+'/entregas/'+ts+'_'+cleanName;
+    const {error}=await sb.storage.from('planos').upload(path,archivoFinal,{contentType:archivoFinal.type});
+    if(error){console.error(error);toast('⚠ Error: '+error.message,'#c62828');return;}
+    const {data:urlData}=sb.storage.from('planos').getPublicUrl(path);
+    const pdfRec={name:file.name,data:urlData.publicUrl,tipo:archivoFinal.type,size:archivoFinal.size,fecha:new Date().toISOString(),subidoPor:INSTALADORES[state.user].nombre,storagePath:path};
+    if(!o.pdfsRecepcion)o.pdfsRecepcion=[];
+    o.pdfsRecepcion.push(pdfRec);
+    await guardarPedido(o);
+    render();
+    toast('✓ PDF firmado subido','#3B6D11');
+  };
+  inp.click();
+}
+
+async function marcarEntregado(){
+  const o=state.pedidoSel;if(!o)return;
+  if(!confirm('¿Confirmas que el pedido '+o.num+' ya está entregado?\n\nEsto lo marcará como Completado y desaparecerá de tu lista.'))return;
+  o.estatus='Completado';
+  o.entregado='Si';
+  o.armado='Listo';
+  o.instalacion='Listo';
+  await guardarPedido(o);
+  toast('✓ Pedido marcado como entregado','#3B6D11');
+  state.pedidos=state.pedidos.filter(x=>x.num!==o.num);
+  volverLista();
+}
+
+async function guardarPedido(o){
+  o.updated=Date.now();
+  try{
+    const {error}=await sb.from('orders').update({
+      payload:JSON.stringify(o),
+      estatus:o.estatus,
+      armado:o.armado,
+      entregado:o.entregado,
+      planos:o.planos||[],
+      updated_at:new Date().toISOString()
+    }).eq('num',o.num);
+    if(error){console.error(error);toast('⚠ Error guardando','#c62828');}
+  }catch(e){console.error(e);toast('⚠ Error guardando','#c62828');}
+}
+
+function render(){
+  const v=state.vista||'login';
+  if(v==='login')getApp().innerHTML=renderLogin();
+  else if(v==='lista')getApp().innerHTML=renderLista();
+  else if(v==='detalle')getApp().innerHTML=renderDetalle();
+  else if(v==='firma'){getApp().innerHTML=renderFirma();initFirma();}
+}
+
+// Auto-login si hay sesión guardada
+window.addEventListener('load',()=>{
+  const cel=cargarSesion();
+  if(cel&&INSTALADORES[cel]){
+    state.user=cel;
+    state.vista='lista';
+    render();
+    cargarPedidos();
+  }else{
+    state.vista='login';
+    render();
+  }
+});
+
+// Registrar service worker para que sea PWA
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW failed:',e));
+}
+</script>
+</body>
+</html>
