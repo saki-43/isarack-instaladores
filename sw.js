@@ -3,7 +3,7 @@
 // Estrategia: Network First para HTML/JS, Cache First para iconos
 // ============================================================
 // IMPORTANTE: Cambia esta versión en cada deploy a Vercel
-const VERSION = '2026-08-07-v1';
+const VERSION = '2026-08-07-v2';
 const CACHE_NAME = `isarack-inst-${VERSION}`;
 
 // Archivos esenciales (la app funciona sin internet si están cacheados)
