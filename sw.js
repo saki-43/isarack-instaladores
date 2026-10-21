@@ -3,7 +3,7 @@
 // Estrategia: Network First para HTML/JS, Cache First para iconos
 // ============================================================
 // IMPORTANTE: Cambia esta versión en cada deploy a Vercel
-const VERSION = '2026-10-21-v1';
+const VERSION = '2026-10-21-v3';
 const CACHE_NAME = `isarack-inst-${VERSION}`;
 
 // Archivos esenciales (la app funciona sin internet si están cacheados)
@@ -57,6 +57,10 @@ self.addEventListener('fetch', e => {
   
   // No interceptar peticiones a Supabase (datos en vivo)
   if (url.hostname.includes('supabase')) return;
+  // Ni las librerias de otros dominios (supabase-js, firma, jsPDF en los CDN): si su
+  // descarga fallaba, el catch de abajo devolvia index.html EN LUGAR del script, la app
+  // tronaba antes de arrancar y el celular se quedaba en blanco (Jesus, Android, 21 oct 2026).
+  if (url.origin !== self.location.origin) return;
   
   // No interceptar peticiones POST/PUT/DELETE
   if (req.method !== 'GET') return;
@@ -87,8 +91,9 @@ self.addEventListener('fetch', e => {
         return resp;
       })
       .catch(() => {
-        // Si no hay internet, usar caché. Si tampoco hay caché, mostrar index
-        return caches.match(req).then(cached => cached || caches.match('./index.html'));
+        // Si no hay internet, usar caché. Solo una PAGINA cae a index.html; un script o
+        // archivo sin copia falla normal (nunca se le entrega HTML).
+        return caches.match(req).then(cached => cached || (req.mode === 'navigate' ? caches.match('./index.html') : Response.error()));
       })
   );
 });
