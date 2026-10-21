@@ -59,7 +59,7 @@ self.addEventListener('fetch', e => {
   if (url.hostname.includes('supabase')) return;
   // Ni las librerias de otros dominios (supabase-js, firma, jsPDF en los CDN): si su
   // descarga fallaba, el catch de abajo devolvia index.html EN LUGAR del script, la app
-  // tronaba antes de arrancar y el iPhone se quedaba en blanco (21 oct 2026).
+  // tronaba antes de arrancar y el celular se quedaba en blanco (Jesus, Android, 21 oct 2026).
   if (url.origin !== self.location.origin) return;
   
   // No interceptar peticiones POST/PUT/DELETE
